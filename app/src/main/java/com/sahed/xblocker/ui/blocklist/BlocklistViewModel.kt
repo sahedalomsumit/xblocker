@@ -88,9 +88,9 @@ class BlocklistViewModel @Inject constructor(
         }
     }
 
-    fun cancelDelete(domain: BlockedDomain, timerId: Long) {
+    fun cancelDelete(domain: BlockedDomain) {
         viewModelScope.launch {
-            cancelTimer(timerId)
+            cancelTimer.cancelByDomain(domain.id)
         }
     }
 }

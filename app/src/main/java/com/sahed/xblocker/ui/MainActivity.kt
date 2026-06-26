@@ -21,9 +21,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            XBlockerTheme {
+            val mainViewModel: MainViewModel = hiltViewModel()
+            val isDarkMode by mainViewModel.isDarkMode.collectAsState()
+            XBlockerTheme(darkTheme = isDarkMode) {
                 // Read onboarding state asynchronously — null means still loading
-                val mainViewModel: MainViewModel = hiltViewModel()
                 val onboardingDone by mainViewModel.isOnboardingDone.collectAsState()
 
                 when (onboardingDone) {

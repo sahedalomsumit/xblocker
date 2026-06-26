@@ -1,6 +1,8 @@
 package com.sahed.xblocker.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.Composable
+import androidx.compose.material3.MaterialTheme
 
 // Brand core
 val Accent = Color(0xFF8B5CF6)         // Purple accent
@@ -15,29 +17,69 @@ val AmberDim = Color(0x22F59E0B)
 
 val Rose = Color(0xFFEF4444)           // Danger/blocked
 
+
 // Backgrounds
-val BgDark = Color(0xFF050505)         // Near-black main background
-val BgDark2 = Color(0xFF0A0A0A)        // Slight lift
-val CardBg = Color(0xFF0D0D0D)         // Card surface
-val CardBg2 = Color(0xFF141414)        // Slightly lighter card
-val SurfaceOverlay = Color(0xFF1A1A2E) // Purple-tinted surface
+val BgDark: Color
+    @Composable
+    get() = MaterialTheme.colorScheme.background
+
+val BgDark2: Color
+    @Composable
+    get() = if (MaterialTheme.colorScheme.background == Color(0xFF050505)) Color(0xFF0A0A0A) else Color(0xFFF3F4F6)
+
+val CardBg: Color
+    @Composable
+    get() = MaterialTheme.colorScheme.surface
+
+val CardBg2: Color
+    @Composable
+    get() = MaterialTheme.colorScheme.surfaceVariant
+
+val SurfaceOverlay: Color
+    @Composable
+    get() = if (MaterialTheme.colorScheme.background == Color(0xFF050505)) Color(0xFF1A1A2E) else Color(0xFFEDE9FE)
 
 // Borders & dividers
-val Border = Color(0x14FFFFFF)         // White 8% — subtle border
-val BorderAccent = Color(0x338B5CF6)   // Purple 20% border
+val Border: Color
+    @Composable
+    get() = MaterialTheme.colorScheme.outline
+
+val BorderAccent: Color
+    @Composable
+    get() = MaterialTheme.colorScheme.outlineVariant
 
 // Text
-val TextMain = Color(0xFFFFFFFF)
-val TextSub = Color(0xFFE2E8F0)        // Slightly off-white
-val TextMuted = Color(0xFF94A3B8)      // Slate muted
-val TextDisabled = Color(0xFF475569)   // Very muted
+val TextMain: Color
+    @Composable
+    get() = MaterialTheme.colorScheme.onBackground
+
+val TextSub: Color
+    @Composable
+    get() = if (MaterialTheme.colorScheme.background == Color(0xFF050505)) Color(0xFFE2E8F0) else Color(0xFF1F2937)
+
+val TextMuted: Color
+    @Composable
+    get() = MaterialTheme.colorScheme.onSurfaceVariant
+
+val TextDisabled: Color
+    @Composable
+    get() = if (MaterialTheme.colorScheme.background == Color(0xFF050505)) Color(0xFF475569) else Color(0xFF9CA3AF)
 
 // Status chip backgrounds
-val ChipActive = Color(0xFF064E3B)     // Dark emerald bg
-val ChipInactive = Color(0xFF1C1C1C)  // Dark neutral
+val ChipActive: Color
+    @Composable
+    get() = if (MaterialTheme.colorScheme.background == Color(0xFF050505)) Color(0xFF064E3B) else Color(0xFFD1FAE5)
+
+val ChipInactive: Color
+    @Composable
+    get() = if (MaterialTheme.colorScheme.background == Color(0xFF050505)) Color(0xFF1C1C1C) else Color(0xFFE5E7EB)
 
 // Gradient colors
 val GradientPurpleStart = Color(0xFF6D28D9)
 val GradientPurpleEnd = Color(0xFF8B5CF6)
-val GradientCardStart = Color(0xFF0D0D0D)
-val GradientCardEnd = Color(0xFF1A0D2E)  // Purple-tinted dark
+val GradientCardStart: Color
+    @Composable
+    get() = if (MaterialTheme.colorScheme.background == Color(0xFF050505)) Color(0xFF0D0D0D) else Color(0xFFFFFFFF)
+val GradientCardEnd: Color
+    @Composable
+    get() = if (MaterialTheme.colorScheme.background == Color(0xFF050505)) Color(0xFF1A0D2E) else Color(0xFFEDE9FE)

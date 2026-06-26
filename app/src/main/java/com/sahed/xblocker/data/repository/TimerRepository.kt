@@ -26,6 +26,9 @@ class TimerRepository @Inject constructor(
     fun getActiveTimerForDomain(domainId: Long): Flow<TimerEvent?> =
         dao.getActiveTimerForDomain(domainId).map { it?.toDomain() }
 
+    suspend fun getActiveTimerForDomainOnce(domainId: Long): TimerEvent? =
+        dao.getActiveTimerForDomainOnce(domainId)?.toDomain()
+
     suspend fun createDisableBlockerTimer(workerId: String): Long {
         val now = System.currentTimeMillis()
         val event = TimerEventEntity(

@@ -28,6 +28,9 @@ interface TimerDao {
     @Query("SELECT * FROM timer_events WHERE domainId = :domainId AND isComplete = 0 AND cancelled = 0 LIMIT 1")
     fun getActiveTimerForDomain(domainId: Long): Flow<TimerEventEntity?>
 
+    @Query("SELECT * FROM timer_events WHERE domainId = :domainId AND isComplete = 0 AND cancelled = 0 LIMIT 1")
+    suspend fun getActiveTimerForDomainOnce(domainId: Long): TimerEventEntity?
+
     @Query("UPDATE timer_events SET cancelled = 1 WHERE id = :id")
     suspend fun cancel(id: Long)
 

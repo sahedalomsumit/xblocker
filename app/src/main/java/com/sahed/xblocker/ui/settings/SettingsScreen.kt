@@ -32,6 +32,7 @@ import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.outlined.PhoneAndroid
 import androidx.compose.material.icons.outlined.PowerSettingsNew
 import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -81,22 +82,14 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             color = TextMain
         )
 
-        // Section: Blocking
-        SectionHeader("Blocking")
+        // Section: Theme
+        SectionHeader("Theme")
         SettingsToggleCard(
-            icon = Icons.AutoMirrored.Outlined.List,
-            title = "Default Blocklist",
-            subtitle = "Use bundled list of 500+ adult domains",
-            checked = state.isDefaultListEnabled,
-            onCheckedChange = viewModel::setDefaultListEnabled
-        )
-
-        SettingsToggleCard(
-            icon = Icons.Outlined.PowerSettingsNew,
-            title = "Auto-start on Boot",
-            subtitle = "Accessibility Service restarts automatically after reboot",
-            checked = state.isAutoStartBoot,
-            onCheckedChange = viewModel::setAutoStartBoot
+            icon = Icons.Outlined.DarkMode,
+            title = "Dark Mode",
+            subtitle = "Enable dark theme for the application",
+            checked = state.isDarkMode,
+            onCheckedChange = viewModel::setDarkMode
         )
 
 
@@ -114,7 +107,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
         )
         InfoCard(
             icon = Icons.Outlined.Info,
-            title = "Developed by",
+            title = "© Copyright by",
             subtitle = "Sahed Alom Sumit"
         )
 

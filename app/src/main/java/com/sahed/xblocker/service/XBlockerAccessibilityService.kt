@@ -17,6 +17,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -95,7 +97,12 @@ class XBlockerAccessibilityService : AccessibilityService() {
         }
         serviceScope.launch {
             preferences.setBlockerActive(true)
-            loadBlocklist()
+            combine(
+                blocklistRepo.getAllDomains(),
+                preferences.isDefaultListEnabled
+            ) { _, _ ->
+                loadBlocklist()
+            }.collect {}
         }
     }
 

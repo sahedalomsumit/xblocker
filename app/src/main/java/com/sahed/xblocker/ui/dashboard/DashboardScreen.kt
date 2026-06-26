@@ -37,6 +37,7 @@ import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.ShieldMoon
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -118,7 +119,7 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
         // Stats Row
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             StatCard(
                 modifier = Modifier.weight(1f),
@@ -129,7 +130,14 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
             )
             StatCard(
                 modifier = Modifier.weight(1f),
-                label = "Custom Rules",
+                label = "All Time",
+                value = state.totalBlockedCount.toString(),
+                icon = Icons.Outlined.History,
+                tint = Amber
+            )
+            StatCard(
+                modifier = Modifier.weight(1f),
+                label = "Custom Blocklists",
                 value = state.customDomainCount.toString(),
                 icon = Icons.AutoMirrored.Outlined.List,
                 tint = Accent
@@ -139,7 +147,7 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
         // Default list size card
         InfoCard(
             title = "Default Blocklist",
-            body = "500+ adult domains bundled and active",
+            body = "2000+ adult domains bundled and active",
             icon = Icons.Outlined.Shield,
             tint = Emerald
         )
@@ -252,7 +260,7 @@ private fun BlockerStatusCard(
                     ) {
                         Icon(Icons.Outlined.AccessTime, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("Disable (3hr delay)", style = MaterialTheme.typography.labelLarge)
+                        Text("Disable Blocker", style = MaterialTheme.typography.labelLarge)
                     }
                 } else {
                     Button(
@@ -347,23 +355,28 @@ private fun StatCard(
         border = androidx.compose.foundation.BorderStroke(1.dp, Border)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(tint.copy(alpha = 0.12f)),
-                contentAlignment = Alignment.Center
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(22.dp))
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(tint.copy(alpha = 0.12f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(18.dp))
+                }
+                Text(
+                    text = value,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = TextMain
+                )
             }
-            Text(
-                text = value,
-                style = MaterialTheme.typography.headlineSmall,
-                color = TextMain
-            )
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodySmall,

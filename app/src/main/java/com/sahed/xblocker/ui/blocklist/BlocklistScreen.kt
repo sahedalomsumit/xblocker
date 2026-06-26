@@ -97,48 +97,16 @@ fun BlocklistScreen(viewModel: BlocklistViewModel = hiltViewModel()) {
             onAdd = viewModel::addDomain
         )
 
-        // Filter chips
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            BlocklistFilter.values().forEach { filter ->
-                FilterChip(
-                    selected = state.filter == filter,
-                    onClick = { viewModel.onFilterChange(filter) },
-                    label = {
-                        Text(
-                            text = when (filter) {
-                                BlocklistFilter.ALL -> "All"
-                                BlocklistFilter.CUSTOM -> "Custom"
-                                BlocklistFilter.PENDING -> "Pending"
-                            },
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = AccentDim,
-                        selectedLabelColor = Accent,
-                        containerColor = CardBg,
-                        labelColor = TextMuted
-                    ),
-                    border = FilterChipDefaults.filterChipBorder(
-                        enabled = true,
-                        selected = state.filter == filter,
-                        borderColor = Border,
-                        selectedBorderColor = Accent.copy(alpha = 0.4f)
-                    )
-                )
-            }
-        }
-
         // Domain list
-        if (state.filteredDomains.isEmpty()) {
+        if (state.domains.isEmpty()) {
             EmptyState()
         } else {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(state.filteredDomains, key = { it.id }) { domain ->
+                items(state.domains, key = { it.id }) { domain ->
                     DomainCard(
                         domain = domain,
                         onDelete = { viewModel.requestDelete(domain) },
-                        onCancelDelete = { timerId -> viewModel.cancelDelete(domain, timerId) }
+                        onCancelDelete = { viewModel.cancelDelete(domain) }
                     )
                 }
                 item { Spacer(Modifier.height(80.dp)) }
@@ -195,7 +163,7 @@ private fun AddDomainInput(
 private fun DomainCard(
     domain: BlockedDomain,
     onDelete: () -> Unit,
-    onCancelDelete: (Long) -> Unit
+    onCancelDelete: () -> Unit
 ) {
     val dateFormat = remember { SimpleDateFormat("MMM d, yyyy", Locale.getDefault()) }
 
@@ -260,7 +228,7 @@ private fun DomainCard(
 
             // Action button
             if (domain.pendingDelete) {
-                TextButton(onClick = { onCancelDelete(0L) }) {
+                TextButton(onClick = onCancelDelete) {
                     Icon(Icons.Outlined.Cancel, contentDescription = null, modifier = Modifier.size(16.dp), tint = Amber)
                     Spacer(Modifier.width(4.dp))
                     Text("Cancel", color = Amber, style = MaterialTheme.typography.labelMedium)

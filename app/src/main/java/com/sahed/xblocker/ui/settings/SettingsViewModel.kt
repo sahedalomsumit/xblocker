@@ -11,8 +11,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class SettingsUiState(
-    val isDefaultListEnabled: Boolean = true,
-    val isAutoStartBoot: Boolean = true
+    val isDarkMode: Boolean = true
 )
 
 @HiltViewModel
@@ -25,22 +24,13 @@ class SettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            preferences.isDefaultListEnabled.collect { enabled ->
-                _state.value = _state.value.copy(isDefaultListEnabled = enabled)
-            }
-        }
-        viewModelScope.launch {
-            preferences.isAutoStartBoot.collect { enabled ->
-                _state.value = _state.value.copy(isAutoStartBoot = enabled)
+            preferences.isDarkMode.collect { enabled ->
+                _state.value = _state.value.copy(isDarkMode = enabled)
             }
         }
     }
 
-    fun setDefaultListEnabled(enabled: Boolean) {
-        viewModelScope.launch { preferences.setDefaultListEnabled(enabled) }
-    }
-
-    fun setAutoStartBoot(enabled: Boolean) {
-        viewModelScope.launch { preferences.setAutoStartBoot(enabled) }
+    fun setDarkMode(enabled: Boolean) {
+        viewModelScope.launch { preferences.setDarkMode(enabled) }
     }
 }

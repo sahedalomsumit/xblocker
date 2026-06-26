@@ -12,6 +12,15 @@ class CancelTimerUseCase @Inject constructor(
     private val workManager: WorkManager
 ) {
     suspend operator fun invoke(timerId: Long) {
+        cancel(timerId)
+    }
+
+    suspend fun cancelByDomain(domainId: Long) {
+        val event = timerRepo.getActiveTimerForDomainOnce(domainId) ?: return
+        cancel(event.id)
+    }
+
+    private suspend fun cancel(timerId: Long) {
         val event = timerRepo.getById(timerId) ?: return
         timerRepo.cancel(timerId)
 

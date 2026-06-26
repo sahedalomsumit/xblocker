@@ -26,6 +26,7 @@ data class DashboardUiState(
     val isAccessibilityServiceRunning: Boolean = false,
     val blockedToday: Int = 0,
     val customDomainCount: Int = 0,
+    val totalBlockedCount: Int = 0,
     val activeDisableTimer: TimerEvent? = null,
     val timerRemainingMs: Long = 0L
 )
@@ -65,6 +66,11 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             blocklistRepo.getActiveCustomCount().collect { count ->
                 _uiState.value = _uiState.value.copy(customDomainCount = count)
+            }
+        }
+        viewModelScope.launch {
+            blocklistRepo.getTotalBlockedCount().collect { count ->
+                _uiState.value = _uiState.value.copy(totalBlockedCount = count ?: 0)
             }
         }
         viewModelScope.launch {

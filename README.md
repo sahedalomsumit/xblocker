@@ -14,7 +14,7 @@ XBlocker is a fully offline, on-device Android application that blocks adult/exp
 
 - Monitors the URL bar of all major browsers in real-time
 - No VPN, no root — only Accessibility permission required
-- Default blocklist of 500+ known adult domains (bundled as asset)
+- Default blocklist of 2000+ known adult domains (bundled as asset)
 - Blocker is ON by default after first setup
 - When a blocked domain is detected:
   - Presses **Back** to navigate away from the page
@@ -52,23 +52,23 @@ XBlocker is a fully offline, on-device Android application that blocks adult/exp
 
 ## 3. Tech Stack
 
-| Layer              | Tool                         | Purpose                                |
-| :----------------- | :--------------------------- | :------------------------------------- |
-| **Language**       | Kotlin 2.x                   | Primary language                       |
-| **Min SDK**        | API 26 (Android 8.0)         | Accessibility API + modern features    |
-| **Target SDK**     | API 35 (Android 15)          | Latest Play Store requirement          |
-| **Architecture**   | MVVM + Clean Architecture    | Separation of concerns                 |
-| **UI**             | Jetpack Compose              | Modern declarative UI                  |
-| **Navigation**     | Navigation Compose           | Bottom nav + screen routing            |
-| **DI**             | Hilt (Dagger)                | Dependency injection                   |
-| **Local DB**       | Room + SQLite                | Blocklist + timer state                |
-| **Async**          | Kotlin Coroutines + Flow     | Background service + DB ops            |
-| **Blocking**       | Android AccessibilityService | Monitor browser URL bars               |
-| **Domain Match**   | Custom `DnsBlockEngine`      | O(1) HashSet + wildcard suffix lookup  |
-| **Notifications**  | NotificationManager          | Countdown alerts                       |
-| **Background**     | WorkManager                  | 3-hour timer persistence               |
-| **Preferences**    | DataStore (Preferences)      | App settings                           |
-| **Testing**        | JUnit + MockK + Espresso     | Unit + UI tests                        |
+| Layer             | Tool                         | Purpose                               |
+| :---------------- | :--------------------------- | :------------------------------------ |
+| **Language**      | Kotlin 2.x                   | Primary language                      |
+| **Min SDK**       | API 26 (Android 8.0)         | Accessibility API + modern features   |
+| **Target SDK**    | API 35 (Android 15)          | Latest Play Store requirement         |
+| **Architecture**  | MVVM + Clean Architecture    | Separation of concerns                |
+| **UI**            | Jetpack Compose              | Modern declarative UI                 |
+| **Navigation**    | Navigation Compose           | Bottom nav + screen routing           |
+| **DI**            | Hilt (Dagger)                | Dependency injection                  |
+| **Local DB**      | Room + SQLite                | Blocklist + timer state               |
+| **Async**         | Kotlin Coroutines + Flow     | Background service + DB ops           |
+| **Blocking**      | Android AccessibilityService | Monitor browser URL bars              |
+| **Domain Match**  | Custom `DnsBlockEngine`      | O(1) HashSet + wildcard suffix lookup |
+| **Notifications** | NotificationManager          | Countdown alerts                      |
+| **Background**    | WorkManager                  | 3-hour timer persistence              |
+| **Preferences**   | DataStore (Preferences)      | App settings                          |
+| **Testing**       | JUnit + MockK + Espresso     | Unit + UI tests                       |
 
 ## 4. Project Structure
 
@@ -107,14 +107,14 @@ app/
 
 ## 5. Android Permissions
 
-| Permission                         | Required      | Use                                        |
-| :--------------------------------- | :------------ | :----------------------------------------- |
-| **BIND_ACCESSIBILITY_SERVICE**     | YES — mandatory | Monitor browser URL bars                 |
-| **POST_NOTIFICATIONS**             | YES (API 33+) | Countdown notifications                    |
-| **RECEIVE_BOOT_COMPLETED**         | YES           | Sync blocker state after device reboot     |
-| **SCHEDULE_EXACT_ALARM**           | YES           | Precise 3-hour timer delivery              |
-| **USE_EXACT_ALARM**                | YES (API 33+) | Exact alarm permission                     |
-| **INTERNET**                       | YES           | Asset loading, future updates              |
+| Permission                     | Required        | Use                                    |
+| :----------------------------- | :-------------- | :------------------------------------- |
+| **BIND_ACCESSIBILITY_SERVICE** | YES — mandatory | Monitor browser URL bars               |
+| **POST_NOTIFICATIONS**         | YES (API 33+)   | Countdown notifications                |
+| **RECEIVE_BOOT_COMPLETED**     | YES             | Sync blocker state after device reboot |
+| **SCHEDULE_EXACT_ALARM**       | YES             | Precise 3-hour timer delivery          |
+| **USE_EXACT_ALARM**            | YES (API 33+)   | Exact alarm permission                 |
+| **INTERNET**                   | YES             | Asset loading, future updates          |
 
 ### Manifest Declaration
 
@@ -169,18 +169,18 @@ DnsBlockEngine.shouldBlock(domain)
 
 ### Supported Browsers
 
-| Browser             | Package Name                        |
-| :------------------ | :---------------------------------- |
-| Chrome              | `com.android.chrome`                |
-| Brave               | `com.brave.browser`                 |
-| Samsung Internet    | `com.sec.android.app.sbrowser`      |
-| Firefox             | `org.mozilla.firefox`               |
-| Firefox Fenix       | `org.mozilla.fenix`                 |
-| Microsoft Edge      | `com.microsoft.emmx`                |
-| DuckDuckGo          | `com.duckduckgo.mobile.android`     |
-| Opera               | `com.opera.browser`                 |
-| Vivaldi             | `com.vivaldi.browser`               |
-| Kiwi Browser        | `com.kiwibrowser.browser`           |
+| Browser          | Package Name                    |
+| :--------------- | :------------------------------ |
+| Chrome           | `com.android.chrome`            |
+| Brave            | `com.brave.browser`             |
+| Samsung Internet | `com.sec.android.app.sbrowser`  |
+| Firefox          | `org.mozilla.firefox`           |
+| Firefox Fenix    | `org.mozilla.fenix`             |
+| Microsoft Edge   | `com.microsoft.emmx`            |
+| DuckDuckGo       | `com.duckduckgo.mobile.android` |
+| Opera            | `com.opera.browser`             |
+| Vivaldi          | `com.vivaldi.browser`           |
+| Kiwi Browser     | `com.kiwibrowser.browser`       |
 
 ### Domain Matching Engine (`DnsBlockEngine`)
 
@@ -262,7 +262,7 @@ fun shouldBlock(domain: String): Boolean {
 - "Disable (3hr delay)" button → triggers countdown
 - Domains blocked today counter
 - Active countdown card (HH:MM:SS) with Cancel button
-- Info cards: Custom Rules count, Default Blocklist size, "No VPN Required"
+- Info cards: Custom Blocklists count, Default Blocklist size, "No VPN Required"
 
 ### 9.3 Blocklist Tab
 
@@ -328,14 +328,14 @@ implementation("androidx.work:work-runtime-ktx:2.9.x")
 
 ## 12. Known Challenges & Solutions
 
-| Challenge                                 | Solution                                                                                        |
-| :---------------------------------------- | :---------------------------------------------------------------------------------------------- |
-| **OEM battery killers (Xiaomi, Samsung)** | Guide user to disable battery optimization. Accessibility Services typically survive better.    |
-| **Browser updates changing view IDs**     | Use a priority list of known IDs + BFS traversal fallback for unknown/updated browsers.         |
-| **Browser with no URL bar exposed**       | Service silently ignores packages not in the supported browser list.                            |
-| **Large blocklist memory usage**          | `HashSet<String>` — O(1) lookup. 200k domains ≈ 30MB RAM.                                     |
-| **Play Store Accessibility policy**       | Service description clearly states it only reads URL text, not keystrokes or personal data.     |
-| **Timer accuracy after doze mode**        | `WorkManager` with exact alarms where available (`SCHEDULE_EXACT_ALARM`).                       |
+| Challenge                                 | Solution                                                                                       |
+| :---------------------------------------- | :--------------------------------------------------------------------------------------------- |
+| **OEM battery killers (Xiaomi, Samsung)** | Guide user to disable battery optimization. Accessibility Services typically survive better.   |
+| **Browser updates changing view IDs**     | Use a priority list of known IDs + BFS traversal fallback for unknown/updated browsers.        |
+| **Browser with no URL bar exposed**       | Service silently ignores packages not in the supported browser list.                           |
+| **Large blocklist memory usage**          | `HashSet<String>` — O(1) lookup. 200k domains ≈ 30MB RAM.                                      |
+| **Play Store Accessibility policy**       | Service description clearly states it only reads URL text, not keystrokes or personal data.    |
+| **Timer accuracy after doze mode**        | `WorkManager` with exact alarms where available (`SCHEDULE_EXACT_ALARM`).                      |
 | **Disable timer bypass**                  | Service checks `isBlockerActive` flag on every event — can't be bypassed by clearing app data. |
 
 ## 13. Open Source Blocklists (Default Bundle)
@@ -356,15 +356,15 @@ implementation("androidx.work:work-runtime-ktx:2.9.x")
 
 ## 15. Dev Environment Setup
 
-| Tool                | Version / Notes                                               |
-| :------------------ | :------------------------------------------------------------ |
-| **Android Studio**  | Ladybug (2024.2.x) or newer                                   |
-| **JDK**             | 17 (bundled with Android Studio)                              |
-| **Kotlin**          | 2.x                                                           |
-| **Gradle**          | 8.x with Kotlin DSL (.kts)                                    |
-| **AGP**             | 8.x (Android Gradle Plugin)                                   |
-| **Min test device** | Android 8.0 physical device (Accessibility Service testing)   |
-| **Emulator**        | Works for UI and accessibility service testing                |
+| Tool                | Version / Notes                                             |
+| :------------------ | :---------------------------------------------------------- |
+| **Android Studio**  | Ladybug (2024.2.x) or newer                                 |
+| **JDK**             | 17 (bundled with Android Studio)                            |
+| **Kotlin**          | 2.x                                                         |
+| **Gradle**          | 8.x with Kotlin DSL (.kts)                                  |
+| **AGP**             | 8.x (Android Gradle Plugin)                                 |
+| **Min test device** | Android 8.0 physical device (Accessibility Service testing) |
+| **Emulator**        | Works for UI and accessibility service testing              |
 
 ---
 
