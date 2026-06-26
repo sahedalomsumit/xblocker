@@ -33,7 +33,7 @@ data class DashboardUiState(
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val preferences: AppPreferences,
     private val blocklistRepo: BlocklistRepository,
     private val timerRepo: TimerRepository,

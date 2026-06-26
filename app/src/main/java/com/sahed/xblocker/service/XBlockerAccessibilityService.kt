@@ -184,11 +184,7 @@ class XBlockerAccessibilityService : AccessibilityService() {
      */
     private fun extractUrlFromEvent(event: AccessibilityEvent): String? {
         val source = event.source ?: return null
-        return try {
-            findUrlInNode(source)
-        } finally {
-            source.recycle()
-        }
+        return findUrlInNode(source)
     }
 
     private fun findUrlInNode(root: AccessibilityNodeInfo): String? {
@@ -209,7 +205,6 @@ class XBlockerAccessibilityService : AccessibilityService() {
             val nodes = root.findAccessibilityNodeInfosByViewId(viewId)
             if (nodes.isNotEmpty()) {
                 val text = nodes[0].text?.toString()
-                nodes.forEach { it.recycle() }
                 if (!text.isNullOrBlank()) return text
             }
         }
