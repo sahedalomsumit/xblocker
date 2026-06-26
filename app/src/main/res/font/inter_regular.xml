@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Inter font weight variants via Google Fonts downloadable fonts API.
+  These XML font files reference specific weights of the Inter font family.
+  inter_regular.xml  -> weight=400
+  inter_medium.xml   -> weight=500
+  inter_semibold.xml -> weight=600
+  inter_bold.xml     -> weight=700
+-->
+<font-family xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:fontProviderAuthority="com.google.android.gms.fonts"
+    app:fontProviderPackage="com.google.android.gms"
+    app:fontProviderQuery="name=Inter&amp;weight=400"
+    app:fontProviderCerts="@array/com_google_android_gms_fonts_certs">
+</font-family>

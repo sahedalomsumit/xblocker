@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">XBlocker</string>
+    <string name="vpn_service_name">XBlocker VPN</string>
+    <string name="notification_channel_vpn">XBlocker VPN</string>
+    <string name="notification_channel_timer">XBlocker Timers</string>
+    <string name="blocker_active">Blocker Active</string>
+    <string name="blocker_inactive">Blocker Inactive</string>
+    <string name="disable_in">Blocker disables in</string>
+    <string name="cancel">Cancel</string>
+    <string name="add_domain">Add Domain</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="blocklist">Blocklist</string>
+    <string name="settings">Settings</string>
+    <string name="blocked_today">Blocked Today</string>
+    <string name="custom_rules">Custom Rules</string>
+    <string name="default_blocklist">Default Blocklist</string>
+    <string name="auto_start_boot">Auto-start on Boot</string>
+    <string name="upstream_dns">Upstream DNS</string>
+    <string name="version">Version</string>
+    <string name="no_data_collected">No Data Collected</string>
+    <string name="developed_by">Developed by Sahed Alom Sumit</string>
+    <string name="privacy_notice">All filtering is done locally. No data leaves your device.</string>
+</resources>
