@@ -18,7 +18,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.List
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.outlined.PhoneAndroid
 import androidx.compose.material.icons.outlined.PowerSettingsNew
 import androidx.compose.material.icons.outlined.Shield
@@ -87,7 +87,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
         // Section: Blocking
         SectionHeader("Blocking")
         SettingsToggleCard(
-            icon = Icons.Outlined.List,
+            icon = Icons.AutoMirrored.Outlined.List,
             title = "Default Blocklist",
             subtitle = "Use bundled list of 500+ adult domains",
             checked = state.isDefaultListEnabled,

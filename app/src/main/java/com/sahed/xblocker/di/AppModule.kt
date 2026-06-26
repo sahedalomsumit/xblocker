@@ -25,9 +25,11 @@ object AppModule {
             .build()
 
     @Provides
+    @Singleton
     fun provideBlocklistDao(db: AppDatabase): BlocklistDao = db.blocklistDao()
 
     @Provides
+    @Singleton
     fun provideTimerDao(db: AppDatabase): TimerDao = db.timerDao()
 
     @Provides

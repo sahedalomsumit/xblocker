@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.List
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -44,7 +44,7 @@ import com.sahed.xblocker.ui.theme.TextMain
 
 sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
     object Dashboard : Screen("dashboard", "Dashboard", Icons.Outlined.Home)
-    object Blocklist : Screen("blocklist", "Blocklist", Icons.Outlined.List)
+    object Blocklist : Screen("blocklist", "Blocklist", Icons.AutoMirrored.Outlined.List)
     object Settings : Screen("settings", "Settings", Icons.Outlined.Settings)
 }
 

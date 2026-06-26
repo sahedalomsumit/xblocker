@@ -58,13 +58,16 @@ class XBlockerVpnService : VpnService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Must call startForeground BEFORE any branching to satisfy the 5-second
+        // foreground service deadline on Android 8+.
+        startForeground(NOTIFICATION_ID, buildNotification())
+
         return when (intent?.action) {
             ACTION_STOP -> {
                 stopVpn()
                 START_NOT_STICKY
             }
             else -> {
-                startForeground(NOTIFICATION_ID, buildNotification())
                 startVpn()
                 START_STICKY
             }

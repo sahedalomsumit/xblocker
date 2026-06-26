@@ -35,7 +35,7 @@ import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.outlined.List
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.ShieldMoon
 import androidx.compose.material3.Button
@@ -153,7 +153,7 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
                 modifier = Modifier.weight(1f),
                 label = "Custom Rules",
                 value = state.customDomainCount.toString(),
-                icon = Icons.Outlined.List,
+                icon = Icons.AutoMirrored.Outlined.List,
                 tint = Accent
             )
         }
