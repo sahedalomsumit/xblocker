@@ -4,6 +4,9 @@ import android.content.Intent
 import android.provider.Settings
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import com.sahed.xblocker.R
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -59,7 +62,8 @@ import com.sahed.xblocker.ui.theme.Border
 import com.sahed.xblocker.ui.theme.TextMuted
 
 data class OnboardingPage(
-    val icon: ImageVector,
+    val icon: ImageVector? = null,
+    val iconRes: Int? = null,
     val title: String,
     val body: String,
     val actionLabel: String,
@@ -68,7 +72,7 @@ data class OnboardingPage(
 
 private val pages = listOf(
     OnboardingPage(
-        icon = Icons.Outlined.Shield,
+        iconRes = R.drawable.xblocker_icon,
         title = "Welcome to XBlocker",
         body = "Block adult content across every browser in real-time — using Accessibility Service monitoring. No VPN, no cloud, no tracking, no account needed.",
         actionLabel = "Get Started"
@@ -255,12 +259,20 @@ private fun OnboardingPageContent(page: OnboardingPage) {
                 .background(AccentDim),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = page.icon,
-                contentDescription = null,
-                tint = Accent,
-                modifier = Modifier.size(56.dp)
-            )
+            if (page.iconRes != null) {
+                Image(
+                    painter = painterResource(id = page.iconRes),
+                    contentDescription = null,
+                    modifier = Modifier.size(56.dp)
+                )
+            } else if (page.icon != null) {
+                Icon(
+                    imageVector = page.icon,
+                    contentDescription = null,
+                    tint = Accent,
+                    modifier = Modifier.size(56.dp)
+                )
+            }
         }
 
         Text(

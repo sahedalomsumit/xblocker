@@ -248,7 +248,7 @@ private fun BlockerStatusCard(
 
                 Text(
                     text = if (isActive)
-                        "Monitoring browsers for blocked domains"
+                        "Monitoring browsers for blocked adult websites"
                     else
                         "Enable in Accessibility Settings to start blocking",
                     style = MaterialTheme.typography.bodyMedium,
