@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sahed.xblocker.data.repository.BlocklistRepository
 import com.sahed.xblocker.domain.model.BlockedDomain
+import com.sahed.xblocker.data.datastore.AppPreferences
 import com.sahed.xblocker.domain.usecase.AddCustomDomainUseCase
 import com.sahed.xblocker.domain.usecase.CancelTimerUseCase
 import com.sahed.xblocker.domain.usecase.RequestDomainRemovalUseCase
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,6 +38,7 @@ data class BlocklistUiState(
 @HiltViewModel
 class BlocklistViewModel @Inject constructor(
     private val repo: BlocklistRepository,
+    private val preferences: AppPreferences,
     private val addDomain: AddCustomDomainUseCase,
     private val requestRemoval: RequestDomainRemovalUseCase,
     private val cancelTimer: CancelTimerUseCase
@@ -84,7 +87,8 @@ class BlocklistViewModel @Inject constructor(
 
     fun requestDelete(domain: BlockedDomain) {
         viewModelScope.launch {
-            requestRemoval(domain.id)
+            val delayMs = preferences.defaultDisableDuration.first()
+            requestRemoval(domain.id, delayMs)
         }
     }
 

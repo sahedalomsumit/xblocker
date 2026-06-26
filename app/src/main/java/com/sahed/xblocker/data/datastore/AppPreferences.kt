@@ -32,10 +32,12 @@ class AppPreferences @Inject constructor(
         val KEY_BLOCKED_TODAY = intPreferencesKey("blocked_today")
         val KEY_BLOCKED_TODAY_DATE = longPreferencesKey("blocked_today_date")
         val KEY_DARK_MODE = booleanPreferencesKey("dark_mode")
+        val KEY_DEFAULT_DISABLE_DURATION = longPreferencesKey("default_disable_duration")
     }
 
     val isBlockerActive: Flow<Boolean> = dataStore.data.map { it[KEY_BLOCKER_ACTIVE] ?: false }
     val isDarkMode: Flow<Boolean> = dataStore.data.map { it[KEY_DARK_MODE] ?: true }
+    val defaultDisableDuration: Flow<Long> = dataStore.data.map { it[KEY_DEFAULT_DISABLE_DURATION] ?: (3 * 60 * 60 * 1000L) } // Default 3 hours
     val isOnboardingDone: Flow<Boolean> = dataStore.data.map { it[KEY_ONBOARDING_DONE] ?: false }
     val isDefaultListEnabled: Flow<Boolean> = dataStore.data.map { it[KEY_DEFAULT_LIST_ENABLED] ?: true }
     val isAutoStartBoot: Flow<Boolean> = dataStore.data.map { it[KEY_AUTO_START_BOOT] ?: true }
@@ -44,6 +46,7 @@ class AppPreferences @Inject constructor(
 
     suspend fun setBlockerActive(active: Boolean) = dataStore.edit { it[KEY_BLOCKER_ACTIVE] = active }
     suspend fun setDarkMode(enabled: Boolean) = dataStore.edit { it[KEY_DARK_MODE] = enabled }
+    suspend fun setDefaultDisableDuration(duration: Long) = dataStore.edit { it[KEY_DEFAULT_DISABLE_DURATION] = duration }
     suspend fun setOnboardingDone() = dataStore.edit { it[KEY_ONBOARDING_DONE] = true }
     suspend fun setDefaultListEnabled(enabled: Boolean) = dataStore.edit { it[KEY_DEFAULT_LIST_ENABLED] = enabled }
     suspend fun setAutoStartBoot(enabled: Boolean) = dataStore.edit { it[KEY_AUTO_START_BOOT] = enabled }

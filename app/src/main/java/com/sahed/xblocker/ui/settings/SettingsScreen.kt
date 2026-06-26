@@ -43,7 +43,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,10 +65,43 @@ import com.sahed.xblocker.ui.theme.CardBg2
 import com.sahed.xblocker.ui.theme.TextDisabled
 import com.sahed.xblocker.ui.theme.TextMain
 import com.sahed.xblocker.ui.theme.TextMuted
+import com.sahed.xblocker.ui.theme.Rose
+import com.sahed.xblocker.data.repository.TimerRepository
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.AccessTime
+import androidx.compose.material.icons.outlined.Block
+import androidx.compose.material.icons.outlined.Timelapse
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.window.Dialog
+
+private data class DurationOption(val label: String, val delayMs: Long)
+
+private val DURATION_OPTIONS = listOf(
+    DurationOption("1 hour",  TimerRepository.ONE_HOUR_MS),
+    DurationOption("3 hours", TimerRepository.THREE_HOURS_MS),
+    DurationOption("1 day",   TimerRepository.ONE_DAY_MS),
+    DurationOption("Forever", TimerRepository.FOREVER_MS),
+)
 
 @Composable
 fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()
+    var showDurationPicker by remember { mutableStateOf(false) }
+
+    if (showDurationPicker) {
+        DurationPickerDialog(
+            currentMs = state.defaultDisableDuration,
+            onDismiss = { showDurationPicker = false },
+            onConfirm = { 
+                viewModel.setDefaultDisableDuration(it)
+                showDurationPicker = false 
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -92,6 +127,15 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             onCheckedChange = viewModel::setDarkMode
         )
 
+        // Section: Blocking
+        SectionHeader("Blocking")
+        SettingsActionCard(
+            icon = Icons.Outlined.Timelapse,
+            title = "Default Disable Time",
+            subtitle = DURATION_OPTIONS.find { it.delayMs == state.defaultDisableDuration }?.label ?: "3 hours",
+            onClick = { showDurationPicker = true }
+        )
+
 
         // Section: About
         SectionHeader("About")
@@ -107,7 +151,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
         )
         InfoCard(
             icon = Icons.Outlined.Info,
-            title = "© Copyright by",
+            title = "Copyright by",
             subtitle = "Sahed Alom Sumit"
         )
 
@@ -253,6 +297,179 @@ private fun InfoCard(icon: ImageVector, title: String, subtitle: String) {
             Column {
                 Text(title, style = MaterialTheme.typography.titleSmall, color = TextMain)
                 Text(subtitle, style = MaterialTheme.typography.bodySmall, color = TextMuted)
+            }
+        }
+    }
+}
+
+@Composable
+private fun SettingsActionCard(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = CardBg),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Border)
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(AccentDim),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(icon, contentDescription = null, tint = Accent, modifier = Modifier.size(22.dp))
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(title, style = MaterialTheme.typography.titleSmall, color = TextMain)
+                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = TextMuted)
+            }
+        }
+    }
+}
+
+@Composable
+private fun DurationPickerDialog(
+    currentMs: Long,
+    onDismiss: () -> Unit,
+    onConfirm: (Long) -> Unit
+) {
+    var selectedMs by remember { mutableStateOf(currentMs) }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(24.dp),
+            color = CardBg,
+            tonalElevation = 8.dp
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Title
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Rose.copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Outlined.Timelapse, contentDescription = null, tint = Rose, modifier = Modifier.size(22.dp))
+                    }
+                    Column {
+                        Text(
+                            text = "Disable for how long?",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
+                            color = TextMain
+                        )
+                        Text(
+                            text = "Blocker re-enables automatically",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = TextMuted
+                        )
+                    }
+                }
+
+                // Option chips
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    DURATION_OPTIONS.forEach { option ->
+                        val isSelected = option.delayMs == selectedMs
+                        val isForever = option.delayMs == TimerRepository.FOREVER_MS
+                        val chipColor = when {
+                            isForever && isSelected -> Rose
+                            isSelected -> Accent
+                            else -> Border
+                        }
+                        val bgColor = when {
+                            isForever && isSelected -> Rose.copy(alpha = 0.12f)
+                            isSelected -> Accent.copy(alpha = 0.12f)
+                            else -> Color.Transparent
+                        }
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(bgColor)
+                                .border(1.dp, chipColor, RoundedCornerShape(14.dp))
+                                .clickable { selectedMs = option.delayMs }
+                                .padding(horizontal = 16.dp, vertical = 14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Icon(
+                                    imageVector = if (isForever) Icons.Outlined.Block else Icons.Outlined.AccessTime,
+                                    contentDescription = null,
+                                    tint = if (isSelected) chipColor else TextMuted,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Text(
+                                    text = option.label,
+                                    style = MaterialTheme.typography.bodyLarge.copy(
+                                        fontWeight = if (isSelected) androidx.compose.ui.text.font.FontWeight.SemiBold else androidx.compose.ui.text.font.FontWeight.Normal
+                                    ),
+                                    color = if (isSelected) chipColor else TextMain
+                                )
+                            }
+                            if (isSelected) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                        .clip(CircleShape)
+                                        .background(chipColor),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        Icons.Outlined.CheckCircle,
+                                        contentDescription = null,
+                                        tint = Color.White,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Action buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    TextButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Cancel", color = TextMuted)
+                    }
+                    Button(
+                        onClick = { onConfirm(selectedMs) },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (selectedMs == TimerRepository.FOREVER_MS) Rose else Accent
+                        )
+                    ) {
+                        Text("Confirm", style = MaterialTheme.typography.labelLarge)
+                    }
+                }
             }
         }
     }

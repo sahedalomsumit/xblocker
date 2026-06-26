@@ -28,7 +28,8 @@ data class DashboardUiState(
     val customDomainCount: Int = 0,
     val totalBlockedCount: Int = 0,
     val activeDisableTimer: TimerEvent? = null,
-    val timerRemainingMs: Long = 0L
+    val timerRemainingMs: Long = 0L,
+    val defaultDisableDuration: Long = 3 * 60 * 60 * 1000L
 )
 
 @HiltViewModel
@@ -81,6 +82,11 @@ class DashboardViewModel @Inject constructor(
                 )
             }
         }
+        viewModelScope.launch {
+            preferences.defaultDisableDuration.collect { duration ->
+                _uiState.value = _uiState.value.copy(defaultDisableDuration = duration)
+            }
+        }
     }
 
     /** Poll the accessibility service running state every second (no broadcast mechanism needed). */
@@ -121,9 +127,10 @@ class DashboardViewModel @Inject constructor(
         context.startActivity(intent)
     }
 
+    /** Disable blocker using the default duration from settings. */
     fun requestDisable() {
         viewModelScope.launch {
-            requestDisableBlocker()
+            requestDisableBlocker(_uiState.value.defaultDisableDuration)
         }
     }
 

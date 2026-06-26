@@ -13,9 +13,20 @@ class RequestDisableBlockerUseCase @Inject constructor(
     private val timerRepo: TimerRepository,
     private val workManager: WorkManager
 ) {
-    suspend operator fun invoke() {
+    /**
+     * Schedules a blocker-disable event after [delayMs] milliseconds.
+     * If [delayMs] == [TimerRepository.FOREVER_MS], no WorkManager job is
+     * enqueued — the blocker stays off indefinitely until the timer is cancelled.
+     */
+    suspend operator fun invoke(delayMs: Long = TimerRepository.THREE_HOURS_MS) {
+        if (delayMs == TimerRepository.FOREVER_MS) {
+            // "Forever" — record the intent in DB but don't schedule a job
+            timerRepo.createDisableBlockerTimer(workerId = "forever", delayMs = delayMs)
+            return
+        }
+
         val workRequest = OneTimeWorkRequestBuilder<TimerWorker>()
-            .setInitialDelay(TimerRepository.THREE_HOURS_MS, TimeUnit.MILLISECONDS)
+            .setInitialDelay(delayMs, TimeUnit.MILLISECONDS)
             .setInputData(workDataOf(TimerWorker.KEY_EVENT_TYPE to "DISABLE_BLOCKER"))
             .addTag(TimerWorker.TAG_DISABLE)
             .build()
@@ -26,6 +37,6 @@ class RequestDisableBlockerUseCase @Inject constructor(
             workRequest
         )
 
-        timerRepo.createDisableBlockerTimer(workRequest.id.toString())
+        timerRepo.createDisableBlockerTimer(workRequest.id.toString(), delayMs)
     }
 }

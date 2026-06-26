@@ -12,6 +12,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,6 +39,7 @@ import androidx.compose.material.icons.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.ShieldMoon
 import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.Timelapse
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -45,7 +47,9 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -59,7 +63,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.sahed.xblocker.data.repository.TimerRepository
 import com.sahed.xblocker.ui.theme.Accent
 import com.sahed.xblocker.ui.theme.AccentDim
 import com.sahed.xblocker.ui.theme.Amber
@@ -137,7 +143,7 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
             )
             StatCard(
                 modifier = Modifier.weight(1f),
-                label = "Custom Blocklists",
+                label = "Custom Lists",
                 value = state.customDomainCount.toString(),
                 icon = Icons.AutoMirrored.Outlined.List,
                 tint = Accent
@@ -163,6 +169,8 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
         Spacer(Modifier.height(80.dp)) // bottom nav clearance
     }
 }
+
+// ─── Blocker Status Card ──────────────────────────────────────────────────────
 
 @Composable
 private fun BlockerStatusCard(
@@ -290,12 +298,19 @@ private fun BlockerStatusCard(
     }
 }
 
+// ─── Disable Timer Card ───────────────────────────────────────────────────────
+
 @Composable
 private fun DisableTimerCard(remainingMs: Long, onCancel: () -> Unit) {
-    val hours = remainingMs / 3_600_000
-    val minutes = (remainingMs % 3_600_000) / 60_000
-    val seconds = (remainingMs % 60_000) / 1_000
-    val formatted = "%02d:%02d:%02d".format(hours, minutes, seconds)
+    val isForever = remainingMs >= TimerRepository.FOREVER_MS - TimerRepository.ONE_HOUR_MS
+    val formatted = if (isForever) {
+        "∞  Forever"
+    } else {
+        val hours = remainingMs / 3_600_000
+        val minutes = (remainingMs % 3_600_000) / 60_000
+        val seconds = (remainingMs % 60_000) / 1_000
+        "%02d:%02d:%02d".format(hours, minutes, seconds)
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -315,7 +330,11 @@ private fun DisableTimerCard(remainingMs: Long, onCancel: () -> Unit) {
             ) {
                 Icon(Icons.Outlined.AccessTime, contentDescription = null, tint = Amber, modifier = Modifier.size(28.dp))
                 Column {
-                    Text("Blocker disables in", style = MaterialTheme.typography.bodySmall, color = TextMuted)
+                    Text(
+                        text = if (isForever) "Blocker disabled" else "Blocker disables in",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextMuted
+                    )
                     Text(
                         text = formatted,
                         style = MaterialTheme.typography.titleLarge.copy(
@@ -339,6 +358,8 @@ private fun DisableTimerCard(remainingMs: Long, onCancel: () -> Unit) {
         }
     }
 }
+
+// ─── Stat Card ────────────────────────────────────────────────────────────────
 
 @Composable
 private fun StatCard(
@@ -385,6 +406,8 @@ private fun StatCard(
         }
     }
 }
+
+// ─── Info Card ────────────────────────────────────────────────────────────────
 
 @Composable
 private fun InfoCard(

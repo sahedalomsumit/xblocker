@@ -15,11 +15,17 @@ class RequestDomainRemovalUseCase @Inject constructor(
     private val timerRepo: TimerRepository,
     private val workManager: WorkManager
 ) {
-    suspend operator fun invoke(domainId: Long) {
-        val deleteAt = System.currentTimeMillis() + TimerRepository.THREE_HOURS_MS
+    suspend operator fun invoke(domainId: Long, delayMs: Long = TimerRepository.THREE_HOURS_MS) {
+        if (delayMs == TimerRepository.FOREVER_MS) {
+            timerRepo.createRemoveDomainTimer(domainId = domainId, workerId = "forever", delayMs = delayMs)
+            blocklistRepo.markPendingDelete(domainId, System.currentTimeMillis() + delayMs)
+            return
+        }
+
+        val deleteAt = System.currentTimeMillis() + delayMs
 
         val workRequest = OneTimeWorkRequestBuilder<TimerWorker>()
-            .setInitialDelay(TimerRepository.THREE_HOURS_MS, TimeUnit.MILLISECONDS)
+            .setInitialDelay(delayMs, TimeUnit.MILLISECONDS)
             .setInputData(
                 workDataOf(
                     TimerWorker.KEY_EVENT_TYPE to "REMOVE_DOMAIN",
@@ -36,6 +42,6 @@ class RequestDomainRemovalUseCase @Inject constructor(
         )
 
         blocklistRepo.markPendingDelete(domainId, deleteAt)
-        timerRepo.createRemoveDomainTimer(domainId, workRequest.id.toString())
+        timerRepo.createRemoveDomainTimer(domainId, workRequest.id.toString(), delayMs)
     }
 }

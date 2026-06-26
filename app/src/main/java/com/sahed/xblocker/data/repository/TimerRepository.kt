@@ -29,23 +29,23 @@ class TimerRepository @Inject constructor(
     suspend fun getActiveTimerForDomainOnce(domainId: Long): TimerEvent? =
         dao.getActiveTimerForDomainOnce(domainId)?.toDomain()
 
-    suspend fun createDisableBlockerTimer(workerId: String): Long {
+    suspend fun createDisableBlockerTimer(workerId: String, delayMs: Long = THREE_HOURS_MS): Long {
         val now = System.currentTimeMillis()
         val event = TimerEventEntity(
             eventType = TimerEventType.DISABLE_BLOCKER.name,
             triggeredAt = now,
-            executeAt = now + THREE_HOURS_MS,
+            executeAt = now + delayMs,
             workerId = workerId
         )
         return dao.insert(event)
     }
 
-    suspend fun createRemoveDomainTimer(domainId: Long, workerId: String): Long {
+    suspend fun createRemoveDomainTimer(domainId: Long, workerId: String, delayMs: Long = THREE_HOURS_MS): Long {
         val now = System.currentTimeMillis()
         val event = TimerEventEntity(
             eventType = TimerEventType.REMOVE_DOMAIN.name,
             triggeredAt = now,
-            executeAt = now + THREE_HOURS_MS,
+            executeAt = now + delayMs,
             domainId = domainId,
             workerId = workerId
         )
@@ -72,6 +72,11 @@ class TimerRepository @Inject constructor(
     )
 
     companion object {
+        const val ONE_HOUR_MS   = 1 * 60 * 60 * 1000L
         const val THREE_HOURS_MS = 3 * 60 * 60 * 1000L
+        const val ONE_DAY_MS    = 24 * 60 * 60 * 1000L
+        const val THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000L
+        /** Sentinel: "Forever" — store a far-future executeAt; no WorkManager job is scheduled. */
+        const val FOREVER_MS    = Long.MAX_VALUE / 2
     }
 }

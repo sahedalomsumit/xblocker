@@ -181,6 +181,9 @@ class XBlockerAccessibilityService : AccessibilityService() {
      * Traverse the accessibility node tree to find the browser address bar text.
      * Browsers typically use view IDs like "url_bar", "address_bar", "search_box", etc.
      * Falls back to traversal of TYPE_EDIT_TEXT nodes in the window.
+     *
+     * Returns null if the URL bar is currently focused (user is typing / browsing
+     * autocomplete suggestions) to avoid triggering the block screen prematurely.
      */
     private fun extractUrlFromEvent(event: AccessibilityEvent): String? {
         val source = event.source ?: return null
@@ -204,7 +207,11 @@ class XBlockerAccessibilityService : AccessibilityService() {
         for (viewId in knownIds) {
             val nodes = root.findAccessibilityNodeInfosByViewId(viewId)
             if (nodes.isNotEmpty()) {
-                val text = nodes[0].text?.toString()
+                val node = nodes[0]
+                // If the URL bar is focused, the user is still typing or browsing
+                // suggestions — don't trigger blocking yet.
+                if (node.isFocused) return null
+                val text = node.text?.toString()
                 if (!text.isNullOrBlank()) return text
             }
         }
@@ -220,6 +227,8 @@ class XBlockerAccessibilityService : AccessibilityService() {
             val current = queue.removeFirst()
             val text = current.text?.toString()
             if (current.className == "android.widget.EditText" && !text.isNullOrBlank()) {
+                // Skip if the address bar is focused (user is typing / viewing suggestions)
+                if (current.isFocused) return null
                 if (looksLikeUrl(text)) return text
             }
             for (i in 0 until current.childCount) {
