@@ -12,8 +12,7 @@ import javax.inject.Inject
 
 data class SettingsUiState(
     val isDefaultListEnabled: Boolean = true,
-    val isAutoStartBoot: Boolean = true,
-    val upstreamDns: String = "1.1.1.1"
+    val isAutoStartBoot: Boolean = true
 )
 
 @HiltViewModel
@@ -35,11 +34,6 @@ class SettingsViewModel @Inject constructor(
                 _state.value = _state.value.copy(isAutoStartBoot = enabled)
             }
         }
-        viewModelScope.launch {
-            preferences.upstreamDns.collect { dns ->
-                _state.value = _state.value.copy(upstreamDns = dns)
-            }
-        }
     }
 
     fun setDefaultListEnabled(enabled: Boolean) {
@@ -48,9 +42,5 @@ class SettingsViewModel @Inject constructor(
 
     fun setAutoStartBoot(enabled: Boolean) {
         viewModelScope.launch { preferences.setAutoStartBoot(enabled) }
-    }
-
-    fun setUpstreamDns(dns: String) {
-        viewModelScope.launch { preferences.setUpstreamDns(dns) }
     }
 }

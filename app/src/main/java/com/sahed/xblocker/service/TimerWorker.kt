@@ -55,13 +55,13 @@ class TimerWorker @AssistedInject constructor(
         }
     }
 
+    /**
+     * Disabling the blocker: set the preference to false.
+     * The XBlockerAccessibilityService reads isBlockerActive and stops
+     * processing events when it is false, without needing to be stopped.
+     */
     private suspend fun handleDisableBlocker() {
-        // Stop the VPN service
-        val stopIntent = Intent(appContext, XBlockerVpnService::class.java).apply {
-            action = XBlockerVpnService.ACTION_STOP
-        }
-        appContext.startService(stopIntent)
-        preferences.setVpnActive(false)
+        preferences.setBlockerActive(false)
 
         // Mark all disable timers as complete
         val pending = timerRepo.getPendingEventsOnce()

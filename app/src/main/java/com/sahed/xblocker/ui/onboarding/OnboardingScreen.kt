@@ -1,8 +1,7 @@
 package com.sahed.xblocker.ui.onboarding
 
-import android.net.VpnService
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -25,7 +24,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Accessibility
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.Shield
@@ -36,6 +35,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -46,8 +46,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import com.sahed.xblocker.service.XBlockerAccessibilityService
 import com.sahed.xblocker.ui.theme.Accent
 import com.sahed.xblocker.ui.theme.AccentDim
 import com.sahed.xblocker.ui.theme.BgDark
@@ -66,14 +70,14 @@ private val pages = listOf(
     OnboardingPage(
         icon = Icons.Outlined.Shield,
         title = "Welcome to XBlocker",
-        body = "Block adult content system-wide — across every browser and app — using on-device DNS filtering. No cloud, no tracking, no account needed.",
+        body = "Block adult content across every browser in real-time — using Accessibility Service monitoring. No VPN, no cloud, no tracking, no account needed.",
         actionLabel = "Get Started"
     ),
     OnboardingPage(
-        icon = Icons.Outlined.Lock,
-        title = "VPN Permission",
-        body = "XBlocker needs VPN access to intercept DNS queries locally. Your traffic never leaves your device — there's no external VPN server.",
-        actionLabel = "Grant VPN Permission"
+        icon = Icons.Outlined.Accessibility,
+        title = "Accessibility Permission",
+        body = "XBlocker needs Accessibility access to watch your browser's URL bar. It only reads the current URL — no keystrokes, no personal data, no tracking.",
+        actionLabel = "Open Accessibility Settings"
     ),
     OnboardingPage(
         icon = Icons.Outlined.Notifications,
@@ -97,17 +101,23 @@ fun OnboardingScreen(
 ) {
     var currentPage by remember { mutableIntStateOf(0) }
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
-    val vpnLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == android.app.Activity.RESULT_OK) {
-            currentPage = 2
+    // When returning to page 1 (Accessibility) from system settings, auto-advance if enabled
+    DisposableEffect(lifecycleOwner, currentPage) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME && currentPage == 1) {
+                if (XBlockerAccessibilityService.isRunning(context)) {
+                    currentPage = 2
+                }
+            }
         }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    val notificationLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
+    val notificationLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
     ) {
         currentPage = 3
     }
@@ -174,11 +184,17 @@ fun OnboardingScreen(
                         when (currentPage) {
                             0 -> currentPage = 1
                             1 -> {
-                                val vpnIntent = VpnService.prepare(context)
-                                if (vpnIntent == null) {
-                                    currentPage = 2 // already granted
+                                // Already enabled? skip straight to next page
+                                if (XBlockerAccessibilityService.isRunning(context)) {
+                                    currentPage = 2
                                 } else {
-                                    vpnLauncher.launch(vpnIntent)
+                                    // Open system Accessibility Settings
+                                    context.startActivity(
+                                        Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+                                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                        }
+                                    )
+                                    // The DisposableEffect above will auto-advance when we come back
                                 }
                             }
                             2 -> {

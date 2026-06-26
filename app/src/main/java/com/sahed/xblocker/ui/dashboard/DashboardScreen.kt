@@ -1,8 +1,5 @@
 package com.sahed.xblocker.ui.dashboard
 
-import android.net.VpnService
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -32,10 +29,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccessTime
+import androidx.compose.material.icons.outlined.Accessibility
 import androidx.compose.material.icons.outlined.Block
 import androidx.compose.material.icons.outlined.Cancel
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.automirrored.outlined.List
+import androidx.compose.material.icons.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.ShieldMoon
 import androidx.compose.material3.Button
@@ -55,7 +54,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -69,7 +67,6 @@ import com.sahed.xblocker.ui.theme.BgDark
 import com.sahed.xblocker.ui.theme.Border
 import com.sahed.xblocker.ui.theme.CardBg
 import com.sahed.xblocker.ui.theme.CardBg2
-import com.sahed.xblocker.ui.theme.ChipActive
 import com.sahed.xblocker.ui.theme.ChipInactive
 import com.sahed.xblocker.ui.theme.Emerald
 import com.sahed.xblocker.ui.theme.EmeraldDim
@@ -83,15 +80,6 @@ import com.sahed.xblocker.ui.theme.TextMuted
 @Composable
 fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
-
-    val vpnLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == android.app.Activity.RESULT_OK) {
-            viewModel.startVpn()
-        }
-    }
 
     Column(
         modifier = Modifier
@@ -108,21 +96,11 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
             color = TextMain
         )
 
-        // VPN Status Hero Card
-        VpnStatusCard(
-            isActive = state.isVpnActive,
-            onToggle = {
-                if (state.isVpnActive) {
-                    viewModel.requestDisable()
-                } else {
-                    val vpnIntent = VpnService.prepare(context)
-                    if (vpnIntent == null) {
-                        viewModel.startVpn()
-                    } else {
-                        vpnLauncher.launch(vpnIntent)
-                    }
-                }
-            }
+        // Blocker Status Hero Card
+        BlockerStatusCard(
+            isActive = state.isAccessibilityServiceRunning,
+            onEnable = { viewModel.openAccessibilitySettings() },
+            onDisable = { viewModel.requestDisable() }
         )
 
         // Active Timer Card
@@ -166,12 +144,24 @@ fun DashboardScreen(viewModel: DashboardViewModel = hiltViewModel()) {
             tint = Emerald
         )
 
+        // Accessibility info card
+        InfoCard(
+            title = "No VPN Required",
+            body = "Monitors browser URL bar via Accessibility Service — no traffic interception",
+            icon = Icons.Outlined.Accessibility,
+            tint = Accent
+        )
+
         Spacer(Modifier.height(80.dp)) // bottom nav clearance
     }
 }
 
 @Composable
-private fun VpnStatusCard(isActive: Boolean, onToggle: () -> Unit) {
+private fun BlockerStatusCard(
+    isActive: Boolean,
+    onEnable: () -> Unit,
+    onDisable: () -> Unit
+) {
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1f,
@@ -242,9 +232,9 @@ private fun VpnStatusCard(isActive: Boolean, onToggle: () -> Unit) {
 
                 Text(
                     text = if (isActive)
-                        "All adult content is being blocked system-wide"
+                        "Monitoring browsers for blocked domains"
                     else
-                        "Adult content is not being blocked",
+                        "Enable in Accessibility Settings to start blocking",
                     style = MaterialTheme.typography.bodyMedium,
                     color = TextMuted
                 )
@@ -252,8 +242,10 @@ private fun VpnStatusCard(isActive: Boolean, onToggle: () -> Unit) {
                 // Toggle button
                 if (isActive) {
                     OutlinedButton(
-                        onClick = onToggle,
-                        modifier = Modifier.fillMaxWidth().height(52.dp),
+                        onClick = onDisable,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = Rose),
                         border = androidx.compose.foundation.BorderStroke(1.dp, Rose.copy(alpha = 0.4f))
@@ -264,15 +256,26 @@ private fun VpnStatusCard(isActive: Boolean, onToggle: () -> Unit) {
                     }
                 } else {
                     Button(
-                        onClick = onToggle,
-                        modifier = Modifier.fillMaxWidth().height(52.dp),
+                        onClick = onEnable,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Accent)
                     ) {
                         Icon(Icons.Outlined.CheckCircle, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("Enable Blocker", style = MaterialTheme.typography.labelLarge)
+                        Text("Enable in Settings", style = MaterialTheme.typography.labelLarge)
                     }
+                }
+
+                if (!isActive) {
+                    Text(
+                        text = "Opens Accessibility Settings → find XBlocker and toggle on",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextMuted.copy(alpha = 0.7f),
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
                 }
             }
         }

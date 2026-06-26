@@ -24,7 +24,7 @@ class AppPreferences @Inject constructor(
     private val dataStore = context.dataStore
 
     companion object {
-        val KEY_VPN_ACTIVE = booleanPreferencesKey("vpn_active")
+        val KEY_BLOCKER_ACTIVE = booleanPreferencesKey("blocker_active")
         val KEY_ONBOARDING_DONE = booleanPreferencesKey("onboarding_done")
         val KEY_DEFAULT_LIST_ENABLED = booleanPreferencesKey("default_list_enabled")
         val KEY_AUTO_START_BOOT = booleanPreferencesKey("auto_start_boot")
@@ -33,14 +33,14 @@ class AppPreferences @Inject constructor(
         val KEY_BLOCKED_TODAY_DATE = longPreferencesKey("blocked_today_date")
     }
 
-    val isVpnActive: Flow<Boolean> = dataStore.data.map { it[KEY_VPN_ACTIVE] ?: false }
+    val isBlockerActive: Flow<Boolean> = dataStore.data.map { it[KEY_BLOCKER_ACTIVE] ?: false }
     val isOnboardingDone: Flow<Boolean> = dataStore.data.map { it[KEY_ONBOARDING_DONE] ?: false }
     val isDefaultListEnabled: Flow<Boolean> = dataStore.data.map { it[KEY_DEFAULT_LIST_ENABLED] ?: true }
     val isAutoStartBoot: Flow<Boolean> = dataStore.data.map { it[KEY_AUTO_START_BOOT] ?: true }
     val upstreamDns: Flow<String> = dataStore.data.map { it[KEY_UPSTREAM_DNS] ?: "1.1.1.1" }
     val blockedToday: Flow<Int> = dataStore.data.map { it[KEY_BLOCKED_TODAY] ?: 0 }
 
-    suspend fun setVpnActive(active: Boolean) = dataStore.edit { it[KEY_VPN_ACTIVE] = active }
+    suspend fun setBlockerActive(active: Boolean) = dataStore.edit { it[KEY_BLOCKER_ACTIVE] = active }
     suspend fun setOnboardingDone() = dataStore.edit { it[KEY_ONBOARDING_DONE] = true }
     suspend fun setDefaultListEnabled(enabled: Boolean) = dataStore.edit { it[KEY_DEFAULT_LIST_ENABLED] = enabled }
     suspend fun setAutoStartBoot(enabled: Boolean) = dataStore.edit { it[KEY_AUTO_START_BOOT] = enabled }
